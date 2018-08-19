@@ -39,7 +39,7 @@ public class Config {
                System.exit(1);
             }else
             {
-                read();
+                this.read();
             }
         } catch (IOException e)
         {

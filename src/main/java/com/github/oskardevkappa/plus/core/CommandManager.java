@@ -38,7 +38,6 @@ public class CommandManager extends ListenerAdapter {
         }
 
         final  String content = event.getMessage().getContentRaw().replaceFirst(prefix, "");
-        System.out.println(content);
         commands.forEach(command -> {
 
             command.getSettings().getLabels().forEach(label -> {
