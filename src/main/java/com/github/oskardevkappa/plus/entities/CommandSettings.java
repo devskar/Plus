@@ -15,9 +15,11 @@ public class CommandSettings {
 
     private final CommandGroup group;
     private final List<String> labels;
+    private final Permission permission;
 
-    public CommandSettings(CommandGroup group, Permission permission, String[] labels)
+    public CommandSettings(CommandGroup group, Permission permission, String... labels)
     {
+        this.permission = permission;
         this.group = group;
         this.labels = Arrays.asList(labels);
     }
@@ -30,5 +32,10 @@ public class CommandSettings {
     public List<String> getLabels()
     {
         return labels;
+    }
+
+    public Permission getPermission()
+    {
+        return permission;
     }
 }

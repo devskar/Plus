@@ -2,6 +2,7 @@ package com.github.oskardevkappa.plus;
 
 import com.github.oskardevkappa.plus.core.Bot;
 import com.github.oskardevkappa.plus.core.Config;
+import com.github.oskardevkappa.plus.core.Database;
 
 /**
  * @author oskar
@@ -17,7 +18,10 @@ public class Launch {
 
         Config config = new Config();
 
-        Bot bot = new Bot(config);
+        Database database = new Database(config);
+        database.connect("Plus");
+
+        Bot bot = new Bot(config, database);
         bot.launch();
     }
 
