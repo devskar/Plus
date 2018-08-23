@@ -1,6 +1,6 @@
 package com.github.oskardevkappa.plus.core;
 
-import com.github.oskardevkappa.plus.commands.ICommand;
+import com.github.oskardevkappa.plus.commands.*;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -20,11 +20,14 @@ public class Bot {
 
     private JDA jda;
     private final Config config;
+    private final Database database;
+
     private JDABuilder builder;
     private final CommandManager commandManager;
 
-    public Bot(Config config)
+    public Bot(Config config, Database database)
     {
+        this.database = database;
         this.config = config;
         this.commandManager = new CommandManager(config);
     }
@@ -54,7 +57,11 @@ public class Bot {
     {
         Set<ICommand> commands = new HashSet<>();
 
-        commands.add(new Avatar());
+        commands.add(new Google());
+        commands.add(new Ping());
+        commands.add(new Eval());
+        commands.add(new Test(database));
+        commands.add(new Help(commandManager));
 
         commandManager.setCommands(commands);
     }

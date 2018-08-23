@@ -16,11 +16,10 @@ import java.util.Set;
 public class Config {
 
     private static final String FILE_NAME = "config.properties";
-    private String token;
-    private String prefix;
+    private String token, prefix, ownerID, db_ip, db_user, db_pw;
     private final Properties properties;
     private final File file;
-    private static final String[] keys = {"TOKEN", "PREFIX"};
+    private static final String[] keys = {"TOKEN", "PREFIX", "OWNER", "DATABASE_IP", "DATABASE_USER", "DATABASE_PW"};
 
     public Config()
     {
@@ -60,7 +59,10 @@ public class Config {
 
         this.token = properties.getProperty(keys[0]);
         this.prefix = properties.getProperty(keys[1]);
-
+        this.ownerID = properties.getProperty(keys[2]);
+        this.db_ip = properties.getProperty(keys[3]);
+        this.db_user = properties.getProperty(keys[4]);
+        this.db_pw = properties.getProperty(keys[5]);
 
     }
 
@@ -74,4 +76,23 @@ public class Config {
         return prefix;
     }
 
+    public String getOwnerID()
+    {
+        return ownerID;
+    }
+
+    public String getDb_ip()
+    {
+        return db_ip;
+    }
+
+    public String getDb_user()
+    {
+        return db_user;
+    }
+
+    public String getDb_pw()
+    {
+        return db_pw;
+    }
 }
