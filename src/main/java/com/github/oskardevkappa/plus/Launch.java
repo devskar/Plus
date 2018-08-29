@@ -15,11 +15,10 @@ public class Launch {
 
     public static void main(String args[])
     {
-
         Config config = new Config();
 
         Database database = new Database(config);
-        database.connect("Plus");
+        database.connect("plus");
 
         Bot bot = new Bot(config, database);
         bot.launch();

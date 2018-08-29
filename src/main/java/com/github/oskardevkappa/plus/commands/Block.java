@@ -1,51 +1,41 @@
 package com.github.oskardevkappa.plus.commands;
 
-import com.github.oskardevkappa.plus.core.Database;
 import com.github.oskardevkappa.plus.entities.CommandGroup;
 import com.github.oskardevkappa.plus.entities.CommandSettings;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import org.bson.Document;
-
-
 
 /**
  * @author oskar
  * github.com/oskardevkappa/
  * <p>
- * 23.08.2018
+ * 27.08.2018
  */
 
-public class Test implements ICommand {
+public class Block implements ICommand {
 
-    private final Database database;
-
-    public Test(Database database)
+    public Block()
     {
 
-        this.database = database;
     }
 
     @Override
     public void onCommand(GuildMessageReceivedEvent event, TextChannel channel, Member member, String[] args, String label)
     {
-
-
+        event.getGuild().getMemberById("").getUser().openPrivateChannel().complete().sendMessage("Spam").queue();
     }
 
     @Override
     public CommandSettings getSettings()
     {
-        return new CommandSettings(CommandGroup.OWNER, Permission.MESSAGE_WRITE, "test");
+        return new CommandSettings(CommandGroup.PUBLIC, Permission.MANAGE_PERMISSIONS, "block", "deny");
     }
 
     @Override
     public String getInfo()
     {
-        return null;
+        return "Blocks an user to use commands!";
     }
 }

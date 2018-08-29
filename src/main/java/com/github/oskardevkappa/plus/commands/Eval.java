@@ -56,8 +56,13 @@ public class Eval implements ICommand {
 
         ArrayList<Object> list = (ArrayList<Object>) result;
 
-        channel.sendMessage(list.stream().map(Object::toString).collect(Collectors.joining(" "))).queue();
-
+        if (list == null)
+        {
+            channel.sendMessage("Code got executed without a result!").queue();
+        }else
+        {
+            channel.sendMessage(list.stream().map(Object::toString).collect(Collectors.joining(" "))).queue();
+        }
     }
 
 

@@ -2,10 +2,10 @@ package com.github.oskardevkappa.plus.entities;
 
 public enum CommandGroup {
 
-    OWNER(3),
-    MODERATOR(2),
+    NUll(0),
     PUBLIC(1),
-    NUll(0);
+    MODERATOR(2),
+    OWNER(3);
 
     private final int i;
 
@@ -18,4 +18,9 @@ public enum CommandGroup {
     {
         return i;
     }
+
+/*    public CommandGroup get(int i)
+    {
+
+    }*/
 }

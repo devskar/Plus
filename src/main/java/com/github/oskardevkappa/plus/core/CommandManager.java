@@ -45,8 +45,6 @@ public class CommandManager extends ListenerAdapter {
 
         final  String content = event.getMessage().getContentRaw().replaceFirst(prefix, "");
 
-        System.out.println(content);
-
         for (ICommand command : commands)
         {
             for (String label : command.getSettings().getLabels())
@@ -73,10 +71,6 @@ public class CommandManager extends ListenerAdapter {
                         group = CommandGroup.OWNER;
                     else
                         group = CommandGroup.PUBLIC;
-
-
-                    System.out.println(group + " " + group.getNum());
-                    System.out.println(command.getSettings().getGroup() + " " + command.getSettings().getGroup().getNum());
 
                     if (command.getSettings().getGroup().getNum() < group.getNum())
                     {
