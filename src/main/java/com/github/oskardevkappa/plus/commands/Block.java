@@ -24,7 +24,7 @@ public class Block implements ICommand {
     @Override
     public void onCommand(GuildMessageReceivedEvent event, TextChannel channel, Member member, String[] args, String label)
     {
-        event.getGuild().getMemberById("").getUser().openPrivateChannel().complete().sendMessage("Spam").queue();
+
     }
 
     @Override
