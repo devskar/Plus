@@ -26,11 +26,11 @@ import java.util.List;
  * 29.08.2018
  */
 
-public class MemberListener extends ListenerAdapter {
+public class DatabaseListener extends ListenerAdapter {
 
     private final Database database;
 
-    public MemberListener(Database database)
+    public DatabaseListener(Database database)
     {
         this.database = database;
     }
@@ -38,8 +38,8 @@ public class MemberListener extends ListenerAdapter {
     @Override
     public void onGuildJoin(GuildJoinEvent event)
     {
-        event.getGuild().getMembers().forEach(database::insert);
-        event.getGuild().getMembers().forEach(member -> database.insert(member.getUser()));
+        event.getGuild().getMembers().forEach(database::newMember);
+        event.getGuild().getMembers().forEach(member -> database.newUser(member.getUser()));
     }
 
     @Override
@@ -51,19 +51,19 @@ public class MemberListener extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event)
     {
-        database.insert(event.getMember(), event.getMember().getUser());
+        database.newUser(event.getAuthor()).newMember(event.getMember());
     }
 
     @Override
     public void onPrivateMessageReceived(PrivateMessageReceivedEvent event)
     {
-        database.insert(event.getAuthor());
+        database.newUser(event.getAuthor());
     }
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event)
     {
-        database.insert(event.getMember(), event.getUser());
+        database.newUser(event.getUser()).newMember(event.getMember());
     }
 
     @Override

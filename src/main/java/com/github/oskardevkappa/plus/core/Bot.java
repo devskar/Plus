@@ -1,7 +1,7 @@
 package com.github.oskardevkappa.plus.core;
 
 import com.github.oskardevkappa.plus.commands.*;
-import com.github.oskardevkappa.plus.listeners.MemberListener;
+import com.github.oskardevkappa.plus.listeners.DatabaseListener;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -52,7 +52,7 @@ public class Bot {
     private void addListener()
     {
         builder.addEventListener(commandManager);
-        builder.addEventListener(new MemberListener(database));
+        builder.addEventListener(new DatabaseListener(database));
     }
 
     private void addCommands()
@@ -65,6 +65,8 @@ public class Bot {
         commands.add(new Test(database));
         commands.add(new Help(commandManager));
         commands.add(new Profile(database));
+        commands.add(new Block(database));
+        commands.add(new Fix(database));
 
         commandManager.setCommands(commands);
     }

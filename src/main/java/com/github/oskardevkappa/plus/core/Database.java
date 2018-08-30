@@ -33,7 +33,7 @@ public class Database {
         this.config = config;
     }
 
-    public Database connect(String databaseName)
+    public Database connect(final String databaseName)
     {
 
         this.clientURI = new MongoClientURI(config.getDb_ip());
@@ -45,12 +45,12 @@ public class Database {
         return this;
     }
 
-    public MongoCollection getCollection(String collectionName)
+    public MongoCollection getCollection(final String collectionName)
     {
         return database.getCollection(collectionName);
     }
 
-    public Database write(MongoCollection collection, Document document)
+    public Database write(final MongoCollection collection, final  Document document)
     {
 
         collection.insertOne(document);
@@ -58,7 +58,7 @@ public class Database {
         return this;
     }
 
-    public boolean entryExists(MongoCollection collection, String field, String value)
+    public boolean entryExists(final MongoCollection collection, final String field, final String value)
     {
 
         List<Document> entries = new ArrayList<>();
@@ -68,8 +68,74 @@ public class Database {
         return entries.size() != 0;
     }
 
-    public Database newMember(Member member)
+    public boolean memberExists(final Member member)
     {
+        List<Document> memberDocs = new ArrayList<>();
+
+        this.getCollection("member").find(Filters.regex("ID", member.getUser().getId())).into(memberDocs);
+
+        if (memberDocs.isEmpty())
+            return false;
+
+        for (Document document : memberDocs)
+        {
+            String docGuildID = (String) document.get("guildID");
+
+            if (docGuildID.equals(member.getGuild().getId()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean memberExists(final String memberID, final String guildID)
+    {
+        List<Document> memberDocs = new ArrayList<>();
+
+        this.getCollection("member").find(Filters.regex("ID", memberID)).into(memberDocs);
+
+        if (memberDocs.isEmpty())
+            return false;
+
+        for (Document document : memberDocs)
+        {
+
+            String docGuildID = (String) document.get("guildID");
+
+            if (docGuildID.equals(guildID))
+                return true;
+        }
+
+        return false;
+    }
+
+    public boolean userExists(final User user)
+    {
+
+        List<Document> userDocs = new ArrayList<>();
+
+        this.getCollection("user").find(Filters.regex("ID", user.getId())).into(userDocs);
+
+        return !userDocs.isEmpty();
+    }
+
+    public boolean userExists(final String userID)
+    {
+        List<Document> userDocs = new ArrayList<>();
+
+        this.getCollection("user").find(Filters.regex("ID", userID)).into(userDocs);
+
+        return !userDocs.isEmpty();
+    }
+
+    public Database newMember(final Member member)
+    {
+
+        if (this.memberExists(member))
+            return this;
+
+        System.out.println(member.getEffectiveName()    );
 
         Document document = new Document();
 
@@ -84,6 +150,11 @@ public class Database {
 
     public Database newUser(User user)
     {
+
+        if (this.userExists(user))
+            return this;
+
+
         Document document = new Document();
 
         document
@@ -96,51 +167,71 @@ public class Database {
         return this;
     }
 
-    public void insert(Member member)
+    public Document getMemberDoc(Member member)
     {
-        MongoCollection collection = database.getCollection("member");
+        List<Document> memberDocs = new ArrayList<>();
 
-        if (!this.entryExists(collection, "ID", member.getUser().getId()))
+        this.getCollection("member").find(Filters.regex("ID", member.getUser().getId())).into(memberDocs);
+
+        for (Document doc : memberDocs)
         {
-            this.newMember(member);
-        } else
-        {
-            List<Document> entries = new ArrayList<>();
+            String guildID = (String) doc.get("guildID");
 
-            collection.find(Filters.regex("ID", member.getUser().getId())).into(entries);
-
-            boolean contains = false;
-
-            for (Document entry : entries)
-            {
-                if (entry.get("guildID").equals(member.getGuild().getId()))
-                    contains = true;
-            }
-
-            if (!contains)
-                this.newMember(member);
+            if (guildID.equals(member.getGuild().getId()))
+                return doc;
         }
+
+        return null;
     }
 
-    public void insert(User user)
+    public Document getMemberDoc(String memberID, String guildID)
     {
+        List<Document> memberDocs = new ArrayList<>();
 
-        MongoCollection collection = database.getCollection("user");
+        this.getCollection("member").find(Filters.regex("ID", memberID)).into(memberDocs);
 
-        if (!this.entryExists(collection, "ID", user.getId()))
-            this.newUser(user);
+        for (Document doc : memberDocs)
+        {
+            String docGuildID = (String) doc.get("guildID");
+
+            if (guildID.equals(docGuildID))
+                return doc;
+        }
+
+        return null;
     }
 
-    public void insert(Member member, User user)
+    public Document getUserDoc(String ID)
     {
-        this.insert(member);
-        this.insert(user);
+        List<Document> userDocs = new ArrayList<>();
+
+        this.getCollection("user").find(Filters.regex("ID", ID)).into(userDocs);
+
+        return userDocs.get(0);
     }
 
-    public void insert(User user, Member member)
+    public Document getUserDoc(User user)
     {
-        this.insert(member);
-        this.insert(user);
+        List<Document> userDocs = new ArrayList<>();
+
+        this.getCollection("user").find(Filters.regex("ID", user.getId())).into(userDocs);
+
+        return userDocs.get(0);
+    }
+
+    public CommandGroup getCommandGroup(final Member member)
+    {
+        return this.getCommandGroup(member.getUser());
+    }
+
+    public CommandGroup getCommandGroup(final User user)
+    {
+        Document userDoc = this.getUserDoc(user);
+
+        if (config.getOwnerID().equals(user.getId()))
+            return CommandGroup.OWNER;
+
+        return CommandGroup.values()[(int) userDoc.get("group")];
     }
 
     public MongoDatabase getDatabase()

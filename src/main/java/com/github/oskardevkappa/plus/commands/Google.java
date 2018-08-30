@@ -8,7 +8,9 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author oskar
@@ -39,6 +41,24 @@ public class Google implements ICommand{
 
         List<String> arguments = Arrays.asList(args);
 
+        Map<String, String> replacements = new HashMap<>();
+
+        replacements.put("\\+", "%2B");
+        replacements.put("\\/", "%2F");
+        replacements.put("\\@", "%40");
+        replacements.put("\\*", "%2F");
+
+        for (String arg : arguments)
+        {
+            for (String key : replacements.keySet())
+            {
+                System.out.println(key);
+                System.out.println(replacements.get(key));
+                arg = arg.replaceAll(key, replacements.get(key));
+            }
+        }
+
+        /*
         arguments.forEach(arg -> {
             arg.replaceAll("\\+", REPLACEMENT)
                     .replaceAll("\\s", "")
@@ -47,7 +67,7 @@ public class Google implements ICommand{
                     .replaceAll("/", "%2F")
                     .replaceAll("@", "%40");
         });
-
+*/
         channel.sendMessage(DEFAULT_URL + String.join("+", arguments).replaceFirst("\\s", "")).queue();
     }
 
