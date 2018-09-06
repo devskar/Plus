@@ -22,12 +22,14 @@ import java.util.regex.Pattern;
 public class CommandManager extends ListenerAdapter {
 
     private final Config config;
+    private final Database database;
 
     private Set<ICommand> commands;
 
-    public CommandManager(Config config)
+    public CommandManager(Config config, Database database)
     {
         this.config = config;
+        this.database = database;
     }
 
     @Override
@@ -37,19 +39,23 @@ public class CommandManager extends ListenerAdapter {
         final String prefix = String.format("\\%s", config.getPrefix());
         String raw = "\\" + event.getMessage().getContentRaw();
 
+        database.newMember(event.getMember());
+
         if (!raw.startsWith(prefix))
             return;
 
         if (event.getMember() == event.getGuild().getSelfMember())
             return;
 
+
         final  String content = event.getMessage().getContentRaw().replaceFirst(prefix, "");
+
 
         for (ICommand command : commands)
         {
             for (String label : command.getSettings().getLabels())
             {
-                if (content.startsWith(label))
+                if (content.split("\\s")[0].equalsIgnoreCase(label))
                 {
                     String string = content.replaceFirst(label, "");
 
@@ -63,7 +69,6 @@ public class CommandManager extends ListenerAdapter {
 
                     Member member = event.getMember();
                     TextChannel channel = event.getChannel();
-
 
                     CommandGroup group;
 
@@ -89,11 +94,6 @@ public class CommandManager extends ListenerAdapter {
                     {
                         channel.sendMessage("Missing permission!").queue();
                     }
-
-
-
-
-
                     break;
                 }
             }

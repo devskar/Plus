@@ -1,6 +1,8 @@
 package com.github.oskardevkappa.plus.core;
 
 import com.github.oskardevkappa.plus.entities.CommandGroup;
+import com.github.oskardevkappa.plus.entities.Tag;
+import com.github.oskardevkappa.plus.utils.TagHandler;
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -23,14 +25,16 @@ import java.util.List;
 public class Database {
 
     private final Config config;
+    private final TagHandler tagHandler;
 
     private MongoClientURI clientURI;
     private MongoClient client;
     private MongoDatabase database;
 
-    public Database(Config config)
+    public Database(Config config, TagHandler tagHandler)
     {
         this.config = config;
+        this.tagHandler = tagHandler;
     }
 
     public Database connect(final String databaseName)
@@ -71,6 +75,12 @@ public class Database {
     public boolean memberExists(final Member member)
     {
         List<Document> memberDocs = new ArrayList<>();
+
+        if (member == null)
+            return true;
+
+        if (member.getUser().isFake())
+            return true;
 
         this.getCollection("member").find(Filters.regex("ID", member.getUser().getId())).into(memberDocs);
 
@@ -135,8 +145,6 @@ public class Database {
         if (this.memberExists(member))
             return this;
 
-        System.out.println(member.getEffectiveName()    );
-
         Document document = new Document();
 
         document
@@ -150,7 +158,6 @@ public class Database {
 
     public Database newUser(User user)
     {
-
         if (this.userExists(user))
             return this;
 
@@ -232,6 +239,89 @@ public class Database {
             return CommandGroup.OWNER;
 
         return CommandGroup.values()[(int) userDoc.get("group")];
+    }
+
+    public boolean tagExists(String name, String guildId)
+    {
+
+        for (Tag tag: tagHandler.getTags())
+        {
+            if (tag.getGuildId().equals(guildId) && tag.getName().equals(name))
+                return true;
+        }
+
+        return false;
+    }
+
+    public boolean tagExists(Tag tag)
+    {
+        return tagExists(tag.getName(), tag.getGuildId());
+    }
+
+    public Database createTag(Tag tag)
+    {
+
+        if (this.tagExists(tag.getName(), tag.getGuildId()))
+            return this;
+
+        tagHandler.add(tag);
+
+        Document document = new Document();
+
+        document.append("guildId", tag.getGuildId())
+                .append("memberId", tag.getMemberId())
+                .append("name", tag.getName())
+                .append("content", tag.getContent());
+
+        this.write(this.getCollection("tag"), document);
+
+        return this;
+    }
+
+    public Document getTagDoc(String guildId, String tagName)
+    {
+        List<Document> tagDocs = new ArrayList<>();
+
+        this.getCollection("tag").find(Filters.regex("guildId", guildId)).into(tagDocs);
+
+        for (Document doc : tagDocs)
+        {
+            String docTagName = (String) doc.get("name");
+
+            if (docTagName.equals(tagName))
+                return doc;
+        }
+
+        return null;
+    }
+
+    public Document getTagDoc(Tag tag)
+    {
+        return this.getTagDoc(tag.getGuildId(), tag.getName());
+    }
+
+    public List<Tag> getTags()
+    {
+        MongoCollection collection = this.getCollection("tag");
+        MongoCursor cursor = collection.find().iterator();
+
+        List<Tag> tags = new ArrayList<>();
+
+        while(cursor.hasNext())
+        {
+            Document document = (Document) cursor.next();
+
+            tags.add(new Tag((String) document.get("guildId"), (String) document.get("memberId"), (String) document.get("name"), (String) document.get("content")));
+        }
+
+        return tags;
+    }
+
+    public void removeTag(Tag tag)
+    {
+        if (this.tagExists(tag))
+            this.getCollection("tag").deleteOne(this.getTagDoc(tag));
+
     }
 
     public MongoDatabase getDatabase()

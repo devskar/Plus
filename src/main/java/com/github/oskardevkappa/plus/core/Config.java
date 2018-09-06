@@ -63,7 +63,6 @@ public class Config {
         this.db_ip = properties.getProperty(keys[3]);
         this.db_user = properties.getProperty(keys[4]);
         this.db_pw = properties.getProperty(keys[5]);
-
     }
 
     public String getToken()

@@ -1,21 +1,19 @@
 package com.github.oskardevkappa.plus.commands;
 
+import com.github.oskardevkappa.plus.core.Database;
 import com.github.oskardevkappa.plus.entities.CommandGroup;
 import com.github.oskardevkappa.plus.entities.CommandSettings;
 
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.awt.*;
-import java.security.spec.ECField;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * @author oskar
@@ -26,42 +24,35 @@ import java.util.stream.Collectors;
 
 public class Eval implements ICommand {
 
-    public Eval()
-    {
+    private final Database database;
 
+    public Eval(Database database)
+    {
+        this.database = database;
     }
 
     @Override
     public void onCommand(GuildMessageReceivedEvent event, TextChannel channel, Member member, String[] args, String label)
     {
 
-        Binding bindings = new Binding();
-        bindings.setVariable("jda", event.getJDA());
-        bindings.setVariable("channel", channel);
-        bindings.setVariable("guild", event.getGuild());
-        bindings.setVariable("bot", event.getGuild().getSelfMember());
+        ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
 
-        GroovyShell shell = new GroovyShell(bindings);
+        String script = String.join(" ", args);
 
-        Object result = null;
+        script = script.replaceAll("#", "().");
+
+        engine.put("guild", event.getGuild());
+        engine.put("channel", channel);
+        engine.put("member", member);
+        engine.put("jda", event.getJDA());
+        engine.put("database", database);
 
         try
         {
-            result = shell.evaluate(Arrays.toString(args).replaceAll("#", "()."));
-        }catch (Exception e)
+            channel.sendMessage(String.valueOf(engine.eval(script))).queue();
+        } catch (Exception e)
         {
-            channel.sendMessage(new EmbedBuilder().setColor(Color.red).setTitle("A wild error appears").setDescription(e.toString()).build()).queue();
-        }
-
-
-        ArrayList<Object> list = (ArrayList<Object>) result;
-
-        if (list == null)
-        {
-            channel.sendMessage("Code got executed without a result!").queue();
-        }else
-        {
-            channel.sendMessage(list.stream().map(Object::toString).collect(Collectors.joining(" "))).queue();
+            channel.sendMessage(new EmbedBuilder().setColor(Color.red).setTitle("An error occured!").setDescription(e.toString()).build()).queue();
         }
     }
 

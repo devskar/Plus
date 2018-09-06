@@ -3,6 +3,7 @@ package com.github.oskardevkappa.plus;
 import com.github.oskardevkappa.plus.core.Bot;
 import com.github.oskardevkappa.plus.core.Config;
 import com.github.oskardevkappa.plus.core.Database;
+import com.github.oskardevkappa.plus.utils.TagHandler;
 
 /**
  * @author oskar
@@ -17,11 +18,16 @@ public class Launch {
     {
         Config config = new Config();
 
-        Database database = new Database(config);
+        TagHandler tagHandler = new TagHandler();
+
+        Database database = new Database(config, tagHandler);
         database.connect("plus");
 
-        Bot bot = new Bot(config, database);
+        Bot bot = new Bot(config, database, tagHandler, tagHandler);
         bot.launch();
-    }
 
+        tagHandler.setDatabase(database);
+
+        tagHandler.setTags(database.getTags());
+    }
 }

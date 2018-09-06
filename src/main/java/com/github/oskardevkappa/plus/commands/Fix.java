@@ -3,11 +3,11 @@ package com.github.oskardevkappa.plus.commands;
 import com.github.oskardevkappa.plus.core.Database;
 import com.github.oskardevkappa.plus.entities.CommandGroup;
 import com.github.oskardevkappa.plus.entities.CommandSettings;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import org.bson.Document;
 
 /**
  * @author oskar
@@ -25,11 +25,9 @@ public class Fix implements ICommand{
         this.database = database;
     }
 
-
     @Override
     public void onCommand(GuildMessageReceivedEvent event, TextChannel channel, Member member, String[] args, String label)
     {
-
         /*event.getGuild().getMembers().forEach(database::newMember);*/
 
         CommandGroup commandGroup = database.getCommandGroup(member);
@@ -41,11 +39,21 @@ public class Fix implements ICommand{
         }
         else
         {
+
+            int a = 0;
+            int b = 0;
+
             for(Member member1 : event.getGuild().getMembers())
             {
+                if (!database.memberExists(member1))
+                    a++;
+
+                if (!database.userExists(member1.getUser()))
+                    b++;
+
                 database.newMember(member1).newUser(member1.getUser());
             }
-            channel.sendMessage("Guild got fixed!").queue();
+            channel.sendMessage(new EmbedBuilder().setTitle("Guild got fixed!").addField("new Member", String.valueOf(a), false).addField("new User", String.valueOf(b), false).addField("total", String.valueOf(a+b), false).setDescription("").build()) .queue();
         }
     }
 
@@ -58,6 +66,6 @@ public class Fix implements ICommand{
     @Override
     public String getInfo()
     {
-        return null;
+        return "This can maybe fix some problems you have!";
     }
 }

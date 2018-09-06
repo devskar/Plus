@@ -43,7 +43,7 @@ public class Profile implements ICommand{
         Document document = documents.get(0);
 
         Boolean premium = document.getBoolean("premium");
-        CommandGroup group = CommandGroup.values()[(int) document.get("group")];
+        CommandGroup group = database.getCommandGroup(member);
 
         Member target = event.getMember();
 
