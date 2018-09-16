@@ -1,6 +1,8 @@
-package com.github.oskardevkappa.plus.core;
+package com.github.oskardevkappa.plus.manager;
 
 import com.github.oskardevkappa.plus.commands.ICommand;
+import com.github.oskardevkappa.plus.core.Config;
+import com.github.oskardevkappa.plus.core.Database;
 import com.github.oskardevkappa.plus.entities.CommandGroup;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -44,7 +46,7 @@ public class CommandManager extends ListenerAdapter {
         if (!raw.startsWith(prefix))
             return;
 
-        if (event.getMember() == event.getGuild().getSelfMember())
+        if (event.getMember().getUser().isBot())
             return;
 
 

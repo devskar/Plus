@@ -1,5 +1,6 @@
-package com.github.oskardevkappa.plus.commands;
+package com.github.oskardevkappa.plus.commands.apis;
 
+import com.github.oskardevkappa.plus.commands.ICommand;
 import com.github.oskardevkappa.plus.entities.CommandGroup;
 import com.github.oskardevkappa.plus.entities.CommandSettings;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -7,10 +8,15 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.json.JSONObject;
 
 import static com.github.oskardevkappa.plus.utils.Const.*;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.StringJoiner;
@@ -26,9 +32,13 @@ import java.util.StringJoiner;
 
 public class YesNo implements ICommand {
 
+    private final String api_url = "https://yesno.wtf/api";
+
+    private final Random random;
+
     public YesNo()
     {
-
+        this.random = new Random();
     }
 
     @Override
@@ -42,17 +52,30 @@ public class YesNo implements ICommand {
         }
 
         String question = String.join(" ", args);
+        Request request = new Request.Builder().url(api_url).build();
 
-        Random random = new Random();
+        boolean bool = false;
+        String gif = "";
 
-        boolean bool = random.nextBoolean();
+        try
+        {
+            Response response = new OkHttpClient().newCall(request).execute();
 
-        String answer = bool ? yesAnswers.get(random.nextInt(yesAnswers.size())) : noAnswers.get(random.nextInt(noAnswers.size()));
+            JSONObject object = new JSONObject(response.body().string());
+
+            bool = object.getString("answer").equals("yes");
+            gif = object.getString("image");
+
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
 
         EmbedBuilder response = new EmbedBuilder()
+                .setAuthor("Yes-No Answer", api_url)
                 .addField("Q:", question, false)
-                .addField("A:", answer, false)
-                .setImage(bool ? yesGifs.get(random.nextInt(yesGifs.size())) : noGifs.get(random.nextInt(noGifs.size())))
+                .addField("A:", bool ? yesAnswers.get(random.nextInt(yesAnswers.size())) : noAnswers.get(random.nextInt(noAnswers.size())), false)
+                .setImage(gif)
                 .setColor(bool ? Color.green : Color.red);
 
         channel.sendMessage(response.build()).queue();

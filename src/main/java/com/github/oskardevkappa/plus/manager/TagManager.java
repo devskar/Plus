@@ -1,4 +1,4 @@
-package com.github.oskardevkappa.plus.utils;
+package com.github.oskardevkappa.plus.manager;
 
 import com.github.oskardevkappa.plus.core.Database;
 import com.github.oskardevkappa.plus.entities.Tag;
@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
  * 05.09.2018
  */
 
-public class TagHandler {
+public class TagManager {
 
     private List<Tag> tags;
     private Database database;
 
-    public TagHandler()
+    public TagManager()
     {
         tags = new ArrayList<>();
     }

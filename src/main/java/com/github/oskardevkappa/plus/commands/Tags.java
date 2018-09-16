@@ -3,7 +3,7 @@ package com.github.oskardevkappa.plus.commands;
 import com.github.oskardevkappa.plus.entities.CommandGroup;
 import com.github.oskardevkappa.plus.entities.CommandSettings;
 import com.github.oskardevkappa.plus.entities.Tag;
-import com.github.oskardevkappa.plus.utils.TagHandler;
+import com.github.oskardevkappa.plus.manager.TagManager;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -18,11 +18,11 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class Tags implements ICommand {
 
-    private final TagHandler tagHandler;
+    private final TagManager tagManager;
 
-    public Tags(TagHandler tagHandler)
+    public Tags(TagManager tagManager)
     {
-        this.tagHandler = tagHandler;
+        this.tagManager = tagManager;
     }
 
     @Override
@@ -42,18 +42,18 @@ public class Tags implements ICommand {
         switch(args[0])
         {
             case "create":
-                tagHandler.createTag(new Tag(event.getGuild().getId(), member.getUser().getId(), args[1], restlicherContent));
+                tagManager.createTag(new Tag(event.getGuild().getId(), member.getUser().getId(), args[1], restlicherContent));
                 channel.sendMessage("new tag has been created").queue();
                 break;
 
             case "delete":
                 case "remove":
 
-                    Tag tag = tagHandler.getTagByName(tagName, event.getGuild().getId());
+                    Tag tag = tagManager.getTagByName(tagName, event.getGuild().getId());
 
                     if (tag.getMemberId().equals(member.getUser().getId()))
                     {
-                        tagHandler.removeTag(tag);
+                        tagManager.removeTag(tag);
                         channel.sendMessage(String.format("Tag %s has been removed!", tag.getName())).queue();
                     }else
                     {

@@ -2,7 +2,7 @@ package com.github.oskardevkappa.plus.core;
 
 import com.github.oskardevkappa.plus.entities.CommandGroup;
 import com.github.oskardevkappa.plus.entities.Tag;
-import com.github.oskardevkappa.plus.utils.TagHandler;
+import com.github.oskardevkappa.plus.manager.TagManager;
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -25,16 +25,16 @@ import java.util.List;
 public class Database {
 
     private final Config config;
-    private final TagHandler tagHandler;
+    private final TagManager tagManager;
 
     private MongoClientURI clientURI;
     private MongoClient client;
     private MongoDatabase database;
 
-    public Database(Config config, TagHandler tagHandler)
+    public Database(Config config, TagManager tagManager)
     {
         this.config = config;
-        this.tagHandler = tagHandler;
+        this.tagManager = tagManager;
     }
 
     public Database connect(final String databaseName)
@@ -244,7 +244,7 @@ public class Database {
     public boolean tagExists(String name, String guildId)
     {
 
-        for (Tag tag: tagHandler.getTags())
+        for (Tag tag: tagManager.getTags())
         {
             if (tag.getGuildId().equals(guildId) && tag.getName().equals(name))
                 return true;
@@ -264,7 +264,7 @@ public class Database {
         if (this.tagExists(tag.getName(), tag.getGuildId()))
             return this;
 
-        tagHandler.add(tag);
+        tagManager.add(tag);
 
         Document document = new Document();
 
@@ -317,6 +317,23 @@ public class Database {
         return tags;
     }
 
+    public List<Document> getDocTags()
+    {
+        MongoCollection collection = this.getCollection("tag");
+        MongoCursor cursor = collection.find().iterator();
+
+        List<Document> tags = new ArrayList<>();
+
+        while(cursor.hasNext())
+        {
+            Document document = (Document) cursor.next();
+
+            tags.add(document);
+        }
+
+        return tags;
+    }
+
     public void removeTag(Tag tag)
     {
         if (this.tagExists(tag))
@@ -328,4 +345,5 @@ public class Database {
     {
         return database;
     }
+
 }

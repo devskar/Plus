@@ -1,16 +1,12 @@
 package com.github.oskardevkappa.plus.commands;
 
-import com.github.oskardevkappa.plus.core.CommandManager;
+import com.github.oskardevkappa.plus.manager.CommandManager;
 import com.github.oskardevkappa.plus.entities.CommandGroup;
 import com.github.oskardevkappa.plus.entities.CommandSettings;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-
-import java.util.Formatter;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * @author oskar
